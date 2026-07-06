@@ -179,3 +179,28 @@ function toggleRecord() {
 isRecording = !isRecording;
 if (isRecording) detectedNotes = [];
 }
+function toggleMetronome() {
+isMetronomeOn = !isMetronomeOn;
+const bpm = parseInt(document.getElementById('bpm').value);
+const beatDuration = (60 / bpm) * 1000;
+
+if (isMetronomeOn) {
+playMetronome();
+}
+}
+
+function playMetronome() {
+if (!isMetronomeOn) return;
+
+const osc = audioContext.createOscillator();
+const gain = audioContext.createGain();
+osc.connect(gain);
+gain.connect(audioContext.destination);
+
+osc.frequency.value = 1000;
+gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+
+osc.start(audioContext.currentTime);
+osc.stop(audioContext.currentTime + 0.1);
+}
