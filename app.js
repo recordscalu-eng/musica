@@ -105,3 +105,52 @@ document.addEventListener('DOMContentLoaded', function() {
 document.getElementById('startBtn').addEventListener('click', initAudio);
 document.getElementById('recordBtn').addEventListener('click', toggleRecord);
 });
+function autoCorrelate(buffer, sampleRate) {
+const SIZE = buffer.length;
+let maxSamples = Math.floor(SIZE / 2);
+let best_offset = -1;
+let best_correlation = 0;
+let rms = 0;
+
+for (let i = 0; i < SIZE; i++) {
+let val = buffer[i];
+rms += val * val;
+}
+rms = Math.sqrt(rms / SIZE);
+if (rms < 0.01) return { frequency: null, confidence: 0 };
+
+let lastCorrelation = 1;
+for (let offset = 1; offset < maxSamples; offset++) {
+let correlation = 0;
+for (let i = 0; i < maxSamples; i++) {
+correlation += Math.abs((buffer[i]) - (buffer[i + offset]));
+}
+correlation = 1 - (correlation / maxSamples);
+if (correlation > 0.9 && correlation > lastCorrelation) {
+let foundGoodCorrelation = false;
+if (correlation > best_correlation) {
+best_correlation = correlation;
+best_offset = offset;
+foundGoodCorrelation = true;
+}
+}
+lastCorrelation = correlation;
+}
+
+if (best_correlation > 0.01) {
+return {
+frequency: sampleRate / best_offset,
+confidence: best_correlation
+};
+}
+return { frequency: null, confidence: 0 };
+}
+
+function frequencyToNote(frequency) {
+const A4 = 440;
+const C0 = A4 * Math.pow(2, -4.75);
+const h = 12 * Math.log2(frequency / C0);
+const octave = Math.floor(h / 12);
+const n = Math.round(h % 12);
+return noteNames[n] + octave;
+}
