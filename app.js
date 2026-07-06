@@ -204,3 +204,53 @@ gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
 osc.start(audioContext.currentTime);
 osc.stop(audioContext.currentTime + 0.1);
 }
+function drawMelody() {
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth - 20;
+canvas.height = 400;
+
+ctx.fillStyle = '#fff';
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+ctx.strokeStyle = '#000';
+ctx.lineWidth = 2;
+
+const staffTop = 50;
+const lineSpacing = 15;
+for (let i = 0; i < 5; i++) {
+ctx.beginPath();
+ctx.moveTo(0, staffTop + i * lineSpacing);
+ctx.lineTo(canvas.width, staffTop + i * lineSpacing);
+ctx.stroke();
+}
+
+detectedNotes.forEach((note, index) => {
+const x = (index / detectedNotes.length) * canvas.width;
+const noteValue = getNotePosition(note.note);
+const y = staffTop + (4 - noteValue) * lineSpacing;
+
+ctx.fillStyle = '#0000ff';
+ctx.beginPath();
+ctx.arc(x, y, 8, 0, Math.PI * 2);
+ctx.fill();
+});
+}
+
+function getNotePosition(note) {
+const positions = { C: 0, D: 1, E: 2, F: 3, G: 4, A: 5, B: 6 };
+return positions[note.charAt(0)] % 7;
+}
+
+function harmonizeMelody() {
+const key = document.getElementById('key').value;
+const level = parseInt(document.getElementById('harmonizeLevel').value);
+
+document.getElementById('harmonizationDisplay').textContent =
+`Armonización Nivel ${level} en ${key}`;
+}
+
+async function init() {
+await initAudio();
+}
+
+window.addEventListener('load', init);
