@@ -154,3 +154,28 @@ const octave = Math.floor(h / 12);
 const n = Math.round(h % 12);
 return noteNames[n] + octave;
 }
+function frequencyToNote(frequency) {
+const A4 = 440;
+const C0 = A4 * Math.pow(2, -4.75);
+const h = 12 * Math.log2(frequency / C0);
+const octave = Math.floor(h / 12);
+const n = Math.round(h % 12);
+return noteNames[n] + octave;
+}
+
+function toggleMetronome() {
+isMetronomeOn = !isMetronomeOn;
+if (isMetronomeOn) playMetronome();
+}
+
+function playMetronome() {
+if (!isMetronomeOn) return;
+const bpm = parseInt(document.getElementById('bpm').value);
+const beatDuration = (60 / bpm) * 1000;
+setTimeout(playMetronome, beatDuration);
+}
+
+function toggleRecord() {
+isRecording = !isRecording;
+if (isRecording) detectedNotes = [];
+}
